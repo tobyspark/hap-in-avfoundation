@@ -71,9 +71,13 @@
 		//	run through the flattened file array, adding the contents to the file array
 		it = [flattenedFileArray objectEnumerator];
 		while (path = [it nextObject])	{
+			BOOL		fresh = ![self fileArrayContainsSourcePath:path];
 			newObj = [FileHolder createWithPath:path];
-			if (newObj != nil)
+			if (newObj != nil)	{
 				[fileArray addObject:newObj];
+				if (fresh)
+					[self loadCutsFromSidecarForFile:newObj];
+			}
 		}
 		//	run through all the files, updating the dst. file names & error strings
 		[self updateDstFileNames];
@@ -345,12 +349,15 @@
 			//	run through the flattened file array, adding the contents to the file array
 			it = [flattenedFileArray objectEnumerator];
 			while (path = [it nextObject])	{
+				BOOL		fresh = ![self fileArrayContainsSourcePath:path];
 				newObj = [FileHolder createWithPath:path];
 				if (newObj != nil)	{
 					if (realInsertionIndex == (-1))
 						[fileArray addObject:newObj];
 					else
 						[fileArray insertObject:newObj atIndex:realInsertionIndex];
+					if (fresh)
+						[self loadCutsFromSidecarForFile:newObj];
 				}
 			}
 			
@@ -466,6 +473,16 @@
 	if ((i == nil) || ([i count] < 1))
 		return;
 	if (tv == srcTableView)	{
+		//	capture which sources are losing entries so we can refresh their sidecars
+		NSMutableSet	*affectedPaths = [NSMutableSet setWithCapacity:[i count]];
+		[i enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
+			if (idx < [self->fileArray count])	{
+				FileHolder	*f = [self->fileArray objectAtIndex:idx];
+				NSString	*p = [f fullSrcPath];
+				if (p != nil)
+					[affectedPaths addObject:p];
+			}
+		}];
 		//	remove the items from the file array, reload the table
 		[fileArray removeObjectsAtIndexes:i];
 		[self updateDstFileNames];
@@ -473,6 +490,8 @@
 		[dstTableView deselectAll:nil];
 		[srcTableView reloadData];
 		[dstTableView reloadData];
+		for (NSString *p in affectedPaths)
+			[self persistSidecarForSourcePath:p];
 	}
 }
 /*------------------------------------*/
@@ -559,33 +578,26 @@
 }
 
 - (void) addCutForSourcePath:(NSString *)path timeRange:(CMTimeRange)r	{
+	[self addCutForSourcePath:path timeRange:r label:nil];
+}
+
+- (void) addCutForSourcePath:(NSString *)path timeRange:(CMTimeRange)r label:(NSString *)userLabel	{
 	if (path == nil)
 		return;
-	//	find the highest existing cutLabel index for this source so we can pick the next one,
-	//	and remember where to insert (after the last existing entry sharing this source)
-	NSInteger		maxIndex = 1;	//	the unlabeled "original" counts as 1
+	//	pick an insertion index right after the last existing entry that shares this source
 	NSInteger		insertAfter = -1;
 	for (NSInteger i = 0; i < (NSInteger)[fileArray count]; ++i)	{
 		FileHolder	*f = [fileArray objectAtIndex:i];
-		if (![[f fullSrcPath] isEqualToString:path])
-			continue;
-		insertAfter = i;
-		NSString	*lbl = [f cutLabel];
-		if ([lbl length] > 1 && [lbl characterAtIndex:0] == '_')	{
-			NSScanner	*s = [NSScanner scannerWithString:[lbl substringFromIndex:1]];
-			NSInteger	n = 0;
-			if ([s scanInteger:&n] && n > maxIndex)
-				maxIndex = n;
-		}
+		if ([[f fullSrcPath] isEqualToString:path])
+			insertAfter = i;
 	}
-	NSInteger		newIndex = maxIndex + 1;
 
 	FileHolder		*cut = [FileHolder createWithPath:path];
 	if (cut == nil)
 		return;
 	cut.inTime = r.start;
 	cut.outTime = CMTimeRangeGetEnd(r);
-	cut.cutLabel = [NSString stringWithFormat:@"_%03ld", (long)newIndex];
+	cut.cutLabel = [self normalizedUniqueLabel:userLabel forSourcePath:path excludingFile:nil];
 
 	if (insertAfter >= 0 && (insertAfter+1) < (NSInteger)[fileArray count])
 		[fileArray insertObject:cut atIndex:(insertAfter+1)];
@@ -595,6 +607,7 @@
 	[self updateDstFileNames];
 	[srcTableView reloadData];
 	[dstTableView reloadData];
+	[self persistSidecarForSourcePath:path];
 }
 
 - (void) fileHolderRangeChanged:(FileHolder *)f	{
@@ -602,6 +615,206 @@
 	[self updateDstFileNames];
 	[srcTableView reloadData];
 	[dstTableView reloadData];
+	if (f != nil)
+		[self persistSidecarForSourcePath:[f fullSrcPath]];
+}
+
+- (void) updateLabel:(NSString *)userLabel forFileHolder:(FileHolder *)f	{
+	if (f == nil)
+		return;
+	//	originals (no existing label) keep their natural name- ignore label edits for them
+	if ([[f cutLabel] length] == 0)
+		return;
+	NSString		*newLabel = [self normalizedUniqueLabel:userLabel forSourcePath:[f fullSrcPath] excludingFile:f];
+	if (newLabel == nil || [newLabel isEqualToString:[f cutLabel]])
+		return;
+	[f setCutLabel:newLabel];
+	[self updateDstFileNames];
+	[srcTableView reloadData];
+	[dstTableView reloadData];
+	[self persistSidecarForSourcePath:[f fullSrcPath]];
+}
+
+- (NSString *) normalizedUniqueLabel:(NSString *)userLabel forSourcePath:(NSString *)path excludingFile:(FileHolder *)excludeFile	{
+	NSString	*trimmed = [userLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+	if ([trimmed length] == 0)	{
+		//	auto-number: pick max existing _NNN for this source and add one
+		NSInteger	maxIndex = 1;
+		for (FileHolder *f in fileArray)	{
+			if (f == excludeFile)
+				continue;
+			if (![[f fullSrcPath] isEqualToString:path])
+				continue;
+			NSString	*lbl = [f cutLabel];
+			if ([lbl length] > 1 && [lbl characterAtIndex:0] == '_')	{
+				NSScanner	*s = [NSScanner scannerWithString:[lbl substringFromIndex:1]];
+				NSInteger	n = 0;
+				if ([s scanInteger:&n] && n > maxIndex)
+					maxIndex = n;
+			}
+		}
+		return [NSString stringWithFormat:@"_%03ld", (long)(maxIndex + 1)];
+	}
+	//	the label is appended verbatim before the extension, so prepend a separator
+	//	if the user didn't already supply one (so "intro" -> "_intro")
+	NSString	*base = trimmed;
+	unichar		first = [base characterAtIndex:0];
+	if (first != '_' && first != '-')
+		base = [@"_" stringByAppendingString:base];
+	//	uniquify against other cuts of the same source by appending -2, -3, ...
+	NSString	*candidate = base;
+	NSInteger	suffix = 2;
+	while ([self labelConflict:candidate sourcePath:path excludingFile:excludeFile])	{
+		candidate = [NSString stringWithFormat:@"%@-%ld", base, (long)suffix++];
+	}
+	return candidate;
+}
+
+- (BOOL) labelConflict:(NSString *)label sourcePath:(NSString *)path excludingFile:(FileHolder *)excludeFile	{
+	for (FileHolder *f in fileArray)	{
+		if (f == excludeFile)
+			continue;
+		if (![[f fullSrcPath] isEqualToString:path])
+			continue;
+		if ([[f cutLabel] isEqualToString:label])
+			return YES;
+	}
+	return NO;
+}
+
+/* --------------------------------------------------------------------------------- */
+#pragma mark --------------------- sidecar persistence
+/* --------------------------------------------------------------------------------- */
+//	the sidecar lives next to the source as "<source-with-ext>.cuts.json".
+//	keeping the source extension means clip.mov and clip.mp4 don't collide.
+- (NSString *) sidecarPathForSourcePath:(NSString *)path	{
+	if (path == nil)
+		return nil;
+	return [path stringByAppendingPathExtension:@"cuts.json"];
+}
+
+- (BOOL) fileArrayContainsSourcePath:(NSString *)path	{
+	if (path == nil)
+		return NO;
+	for (FileHolder *f in fileArray)	{
+		if ([[f fullSrcPath] isEqualToString:path])
+			return YES;
+	}
+	return NO;
+}
+
+//	gather every FileHolder for `path`, write a sidecar describing the non-default
+//	original range and any cut entries. if there's nothing worth persisting, the
+//	sidecar is removed instead.
+- (void) persistSidecarForSourcePath:(NSString *)path	{
+	if (path == nil)
+		return;
+	NSString		*sidecar = [self sidecarPathForSourcePath:path];
+	NSFileManager	*fm = [NSFileManager defaultManager];
+
+	NSMutableArray	*entries = [NSMutableArray arrayWithCapacity:0];
+	for (FileHolder *f in fileArray)	{
+		if (![[f fullSrcPath] isEqualToString:path])
+			continue;
+		//	the unlabeled "original" only persists if the user gave it a custom range
+		BOOL		isLabeled = ([[f cutLabel] length] > 0);
+		if (!isLabeled && ![f isCut])
+			continue;
+		NSMutableDictionary	*entry = [NSMutableDictionary dictionaryWithCapacity:3];
+		entry[@"cutLabel"] = isLabeled ? [f cutLabel] : @"";
+		if (CMTIME_IS_VALID([f inTime]))	{
+			entry[@"in"] = @{ @"value": @([f inTime].value), @"timescale": @([f inTime].timescale) };
+		}
+		if (CMTIME_IS_VALID([f outTime]))	{
+			entry[@"out"] = @{ @"value": @([f outTime].value), @"timescale": @([f outTime].timescale) };
+		}
+		[entries addObject:entry];
+	}
+
+	if ([entries count] == 0)	{
+		if ([fm fileExistsAtPath:sidecar])	{
+			NSError		*rmErr = nil;
+			if (![fm removeItemAtPath:sidecar error:&rmErr])
+				NSLog(@"WARN: could not remove %@: %@",sidecar,rmErr);
+		}
+		return;
+	}
+
+	NSDictionary	*root = @{ @"version": @1, @"entries": entries };
+	NSError			*err = nil;
+	NSData			*data = [NSJSONSerialization dataWithJSONObject:root options:NSJSONWritingPrettyPrinted error:&err];
+	if (data == nil)	{
+		NSLog(@"ERR: serializing sidecar for %@: %@",path,err);
+		return;
+	}
+	if (![data writeToFile:sidecar atomically:YES])	{
+		//	the source's directory may be read-only- log and move on; the in-app state still works
+		NSLog(@"WARN: could not write cut sidecar at %@",sidecar);
+	}
+}
+
+//	called once per freshly-imported source. reads its sidecar (if any) and applies the
+//	saved original range to `freshFile`, then inserts cut FileHolders right after it.
+- (void) loadCutsFromSidecarForFile:(FileHolder *)freshFile	{
+	if (freshFile == nil)
+		return;
+	NSString		*path = [freshFile fullSrcPath];
+	NSString		*sidecar = [self sidecarPathForSourcePath:path];
+	NSFileManager	*fm = [NSFileManager defaultManager];
+	if (![fm fileExistsAtPath:sidecar])
+		return;
+	NSData			*data = [NSData dataWithContentsOfFile:sidecar];
+	if (data == nil)
+		return;
+	NSError			*err = nil;
+	id				obj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
+	if (![obj isKindOfClass:[NSDictionary class]])
+		return;
+	NSArray			*entries = [(NSDictionary *)obj objectForKey:@"entries"];
+	if (![entries isKindOfClass:[NSArray class]])
+		return;
+
+	NSInteger		anchor = [fileArray indexOfObject:freshFile];
+	if (anchor == NSNotFound)
+		return;
+	NSInteger		nextInsert = anchor + 1;
+
+	for (NSDictionary *e in entries)	{
+		if (![e isKindOfClass:[NSDictionary class]])
+			continue;
+		NSString	*label = e[@"cutLabel"];
+		if (![label isKindOfClass:[NSString class]])
+			label = @"";
+		CMTime		inT = kCMTimeInvalid;
+		CMTime		outT = kCMTimeInvalid;
+		NSDictionary *inD = e[@"in"];
+		NSDictionary *outD = e[@"out"];
+		if ([inD isKindOfClass:[NSDictionary class]])	{
+			int64_t	v = [[inD objectForKey:@"value"] longLongValue];
+			int32_t	s = [[inD objectForKey:@"timescale"] intValue];
+			if (s > 0) inT = CMTimeMake(v, s);
+		}
+		if ([outD isKindOfClass:[NSDictionary class]])	{
+			int64_t	v = [[outD objectForKey:@"value"] longLongValue];
+			int32_t	s = [[outD objectForKey:@"timescale"] intValue];
+			if (s > 0) outT = CMTimeMake(v, s);
+		}
+
+		if ([label length] == 0)	{
+			//	no label = restore the original FileHolder's custom range
+			[freshFile setInTime:inT];
+			[freshFile setOutTime:outT];
+		}
+		else	{
+			FileHolder	*cut = [FileHolder createWithPath:path];
+			if (cut == nil)
+				continue;
+			[cut setCutLabel:label];
+			[cut setInTime:inT];
+			[cut setOutTime:outT];
+			[fileArray insertObject:cut atIndex:nextInsert++];
+		}
+	}
 }
 
 

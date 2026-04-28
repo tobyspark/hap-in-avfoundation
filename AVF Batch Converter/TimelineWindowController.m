@@ -16,6 +16,7 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 @property (strong) NSTextField *currentLabel;
 @property (strong) NSTextField *inLabel;
 @property (strong) NSTextField *outLabel;
+@property (strong) NSTextField *cutLabelField;
 @property (strong) id timeObserver;
 @property (strong) id keyMonitor;
 @end
@@ -107,9 +108,10 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 
 	const CGFloat margin = 12.0;
 	const CGFloat buttonRowH = 36.0;
+	const CGFloat cutRowH = 26.0;
 	const CGFloat timelineH = 90.0;
 	const CGFloat labelRowH = 22.0;
-	CGFloat playerY = margin + buttonRowH + margin + timelineH + margin + labelRowH + margin;
+	CGFloat playerY = margin + buttonRowH + margin + cutRowH + margin + timelineH + margin + labelRowH + margin;
 
 	//	player at the top, fills above the timeline
 	AVPlayerView *pv = [[AVPlayerView alloc] initWithFrame:NSMakeRect(margin, playerY, b.size.width - 2*margin, b.size.height - playerY - margin)];
@@ -120,7 +122,7 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 	self.playerView = pv;
 
 	//	time labels row, just above the timeline
-	CGFloat labelY = margin + buttonRowH + margin + timelineH + margin;
+	CGFloat labelY = margin + buttonRowH + margin + cutRowH + margin + timelineH + margin;
 	CGFloat third = (b.size.width - 2*margin) / 3.0;
 	NSTextField *cur = [self makeReadonlyLabelInRect:NSMakeRect(margin, labelY, third, labelRowH)];
 	cur.alignment = NSTextAlignmentLeft;
@@ -140,11 +142,25 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 
 	//	timeline
 	FilmstripTimelineView *tl = [[FilmstripTimelineView alloc]
-		initWithFrame:NSMakeRect(margin, margin + buttonRowH + margin, b.size.width - 2*margin, timelineH)];
+		initWithFrame:NSMakeRect(margin, margin + buttonRowH + margin + cutRowH + margin, b.size.width - 2*margin, timelineH)];
 	tl.autoresizingMask = NSViewWidthSizable;
 	tl.delegate = self;
 	[root addSubview:tl];
 	self.timeline = tl;
+
+	//	cut label row: prompt + editable text field, wedged between the timeline and the buttons
+	CGFloat cutY = margin + buttonRowH + margin;
+	NSTextField *cutPrompt = [self makeReadonlyLabelInRect:NSMakeRect(margin, cutY, 80, cutRowH)];
+	cutPrompt.stringValue = @"Cut label:";
+	cutPrompt.alignment = NSTextAlignmentLeft;
+	[root addSubview:cutPrompt];
+
+	NSTextField *cutField = [[NSTextField alloc] initWithFrame:NSMakeRect(margin + 84, cutY, b.size.width - 2*margin - 84, cutRowH)];
+	cutField.autoresizingMask = NSViewWidthSizable;
+	cutField.font = [NSFont monospacedDigitSystemFontOfSize:12 weight:NSFontWeightRegular];
+	cutField.placeholderString = @"e.g. _intro  (blank = auto-numbered _NNN)";
+	[root addSubview:cutField];
+	self.cutLabelField = cutField;
 
 	//	button row at the bottom
 	NSButton *reset = [self makeButtonWithTitle:@"Reset Range" action:@selector(resetRangeClicked:)];
@@ -215,6 +231,9 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 	self.timeline.outTime = CMTIME_IS_VALID(self.file.outTime) ? self.file.outTime : dur;
 	self.timeline.currentTime = self.timeline.inTime;
 	[player seekToTime:self.timeline.inTime toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
+	//	a cut shows its existing label; an unlabeled "original" leaves the field blank
+	//	so the user can type a label for the next "Add Cut"
+	self.cutLabelField.stringValue = self.file.cutLabel ?: @"";
 
 	__weak typeof(self) weakSelf = self;
 	self.timeObserver = [player addPeriodicTimeObserverForInterval:CMTimeMakeWithSeconds(0.05, 600)
@@ -273,11 +292,15 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 	self.file.inTime = self.timeline.inTime;
 	self.file.outTime = self.timeline.outTime;
 	[self.flc fileHolderRangeChanged:self.file];
+	//	cuts can be renamed via the label field; originals ignore it (FLC enforces this)
+	[self.flc updateLabel:self.cutLabelField.stringValue forFileHolder:self.file];
+	//	reflect any normalization the FLC applied (auto _-prefix, dedupe -2 suffix, ...)
+	self.cutLabelField.stringValue = self.file.cutLabel ?: @"";
 }
 
 - (void) addCutClicked:(id)sender {
 	CMTimeRange r = CMTimeRangeMake(self.timeline.inTime, CMTimeSubtract(self.timeline.outTime, self.timeline.inTime));
-	[self.flc addCutForSourcePath:[self.file fullSrcPath] timeRange:r];
+	[self.flc addCutForSourcePath:[self.file fullSrcPath] timeRange:r label:self.cutLabelField.stringValue];
 }
 
 - (void) closeClicked:(id)sender {

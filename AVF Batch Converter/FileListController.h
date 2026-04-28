@@ -64,10 +64,19 @@
 //	open the timeline window for the double-clicked source row
 - (void) srcTableDoubleClicked:(id)sender;
 
-//	called by TimelineWindowController to add a sub-range cut of an existing source file
+//	called by TimelineWindowController to add a sub-range cut of an existing source file.
+//	`userLabel` is the human-typed label (may be nil/empty to auto-number).
 - (void) addCutForSourcePath:(NSString *)path timeRange:(CMTimeRange)r;
+- (void) addCutForSourcePath:(NSString *)path timeRange:(CMTimeRange)r label:(NSString *)userLabel;
 
 //	called by TimelineWindowController after it edits a FileHolder's in/out
 - (void) fileHolderRangeChanged:(FileHolder *)f;
+
+//	rename a cut FileHolder's label (no-op for the unlabeled "original" entry)
+- (void) updateLabel:(NSString *)userLabel forFileHolder:(FileHolder *)f;
+
+//	normalize a user-typed label and ensure it doesn't collide with another cut of the
+//	same source. pass nil/empty to get the next auto-numbered "_NNN".
+- (NSString *) normalizedUniqueLabel:(NSString *)userLabel forSourcePath:(NSString *)path excludingFile:(FileHolder *)excludeFile;
 
 @end

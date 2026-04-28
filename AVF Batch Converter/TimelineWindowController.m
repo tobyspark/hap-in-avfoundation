@@ -64,6 +64,17 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 		if (s == nil) return event;
 		//	only act when our window is the key window- otherwise let the event flow normally
 		if (event.window != s.window) return event;
+		//	don't hijack i/o while a text field is being edited- the cut-label field
+		//	(and any future text input) needs them to type. NSTextField uses a shared
+		//	field editor that's an NSTextView whose delegate is the field, so check
+		//	for either the field itself or such a descendant being firstResponder.
+		NSResponder *fr = s.window.firstResponder;
+		if ([fr isKindOfClass:[NSTextView class]]) {
+			id fieldDelegate = ((NSTextView *)fr).delegate;
+			if (fieldDelegate == s.cutLabelField) return event;
+			if ([fieldDelegate isKindOfClass:[NSTextField class]]) return event;
+		}
+		else if (fr == s.cutLabelField) return event;
 		//	plain 'i'/'o' only- don't hijack cmd-i, ctrl-i, etc.
 		NSEventModifierFlags mods = event.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask;
 		mods &= ~(NSEventModifierFlagCapsLock | NSEventModifierFlagNumericPad | NSEventModifierFlagFunction);

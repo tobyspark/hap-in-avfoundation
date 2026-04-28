@@ -62,9 +62,6 @@
 		1A3BAC3C1A6524100065403A /* VVKQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BAC311A6524100065403A /* VVKQueue.m */; };
 		1A401D6C1A41FF79003B6E0A /* AVAssetWriterHapInput.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A401D681A41FF79003B6E0A /* AVAssetWriterHapInput.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A401D6D1A41FF79003B6E0A /* AVAssetWriterHapInput.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A401D691A41FF79003B6E0A /* AVAssetWriterHapInput.m */; };
-		1A42C2102BE97257001D8155 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A42C20F2BE97257001D8155 /* Sparkle.framework */; };
-		1A42C2112BE9728A001D8155 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A42C20F2BE97257001D8155 /* Sparkle.framework */; };
-		1A42C2122BE9728A001D8155 /* Sparkle.framework in copy frameworks */ = {isa = PBXBuildFile; fileRef = 1A42C20F2BE97257001D8155 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1A499E682A324465003E19F0 /* HapMTLPixelBufferTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A499E672A324465003E19F0 /* HapMTLPixelBufferTexture.m */; };
 		1A4A76AF1A55AFCC0060CBAC /* AVAssetReaderHapTrackOutput.h in Headers */ = {isa = PBXBuildFile; fileRef = 1A4A76AD1A55AFCC0060CBAC /* AVAssetReaderHapTrackOutput.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1A4A76B01A55AFCC0060CBAC /* AVAssetReaderHapTrackOutput.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A76AE1A55AFCC0060CBAC /* AVAssetReaderHapTrackOutput.m */; };
@@ -292,7 +289,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				1A642D1D1A652CF000E2152D /* HapInAVFoundation.framework in copy frameworks */,
-				1A42C2122BE9728A001D8155 /* Sparkle.framework in copy frameworks */,
 			);
 			name = "copy frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -483,7 +479,6 @@
 				1A642D181A65245900E2152D /* AVFoundation.framework in Frameworks */,
 				1AC07000000000000000020B /* AVKit.framework in Frameworks */,
 				1A642D171A65245600E2152D /* CoreMedia.framework in Frameworks */,
-				1A42C2112BE9728A001D8155 /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -506,7 +501,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1A42C2102BE97257001D8155 /* Sparkle.framework in Frameworks */,
 				1AB69BE32B7BDD790029FDEE /* libate.tbd in Frameworks */,
 				1A680E2A1A39F67E007678E5 /* CoreMedia.framework in Frameworks */,
 				1A1FBF042B83C9FB00EDAC0A /* Metal.framework in Frameworks */,

@@ -61,4 +61,13 @@
 - (FileHolder *) firstFile;
 - (FileHolder *) selectedFile;
 
+//	open the timeline window for the double-clicked source row
+- (void) srcTableDoubleClicked:(id)sender;
+
+//	called by TimelineWindowController to add a sub-range cut of an existing source file
+- (void) addCutForSourcePath:(NSString *)path timeRange:(CMTimeRange)r;
+
+//	called by TimelineWindowController after it edits a FileHolder's in/out
+- (void) fileHolderRangeChanged:(FileHolder *)f;
+
 @end

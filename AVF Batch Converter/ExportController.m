@@ -114,6 +114,7 @@
 				self->transcoder = [VVAVFTranscoder
 					createWithSrc:[NSURL fileURLWithPath:[filePtr fullSrcPath]]
 					dst:[NSURL fileURLWithPath:[self->destinationController fullDstPathForFile:filePtr]]
+					timeRange:[filePtr resolvedTimeRange]
 					audioSettings:self.audioSettingsDict
 					videoSettings:self.videoSettingsDict
 					completionHandler:^(VVAVFTranscoder *completed)	{

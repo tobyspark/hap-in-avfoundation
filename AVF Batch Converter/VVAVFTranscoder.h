@@ -40,17 +40,17 @@ extern NSString * const		kVVAVFTranscodeVideoResolutionKey;	//	get/set an NSSize
 
 
 /*		This is the main class that "does the transcoding"
-		
-		- It creates and retains instances that need to persist for the duration of the transcoding job, and 
+
+		- It creates and retains instances that need to persist for the duration of the transcoding job, and
 		values that are convenient to calculate once and refer to multiple times.
-		- It sets up the transcode (as a series of asynchronous tasks) and manages it (responds to errors, 
+		- It sets up the transcode (as a series of asynchronous tasks) and manages it (responds to errors,
 		which it exposes as an error variable, and informs its delegate when the job has ended)
-		- It's meant to be a throwaway class- you make a job for a given file with a given set of settings, 
+		- It's meant to be a throwaway class- you make a job for a given file with a given set of settings,
 		and when the job is complete you release it (instead of reconfiguring it to run with another file).
-		
+
 		NOTES:
-		
-		- on init, creates queues, the reader/writer, and all of the reader outputs/writer inputs necessary- 
+
+		- on init, creates queues, the reader/writer, and all of the reader outputs/writer inputs necessary-
 		so don't create a job until you're ready to run it!
 */
 
@@ -61,12 +61,19 @@ extern NSString * const		kVVAVFTranscodeVideoResolutionKey;	//	get/set an NSSize
 
 + (instancetype) createWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst audioSettings:(NSDictionary * __nullable)inAudioSettings videoSettings:(NSDictionary * __nullable)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch;
 
++ (instancetype) createWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst timeRange:(CMTimeRange)inTimeRange audioSettings:(NSDictionary * __nullable)inAudioSettings videoSettings:(NSDictionary * __nullable)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch;
+
 - (instancetype) initWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst audioSettings:(NSDictionary * __nullable)inAudioSettings videoSettings:(NSDictionary * __nullable)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch;
+
+- (instancetype) initWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst timeRange:(CMTimeRange)inTimeRange audioSettings:(NSDictionary * __nullable)inAudioSettings videoSettings:(NSDictionary * __nullable)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch;
 
 @property (strong,readonly) NSURL * src;
 @property (strong,readonly) NSURL * dst;
 @property (strong,readonly) NSDictionary * audioSettings;
 @property (strong,readonly) NSDictionary * videoSettings;
+
+//	the source-asset time range being transcoded. Defaults to 0..asset.duration when the no-range init is used.
+@property (readonly) CMTimeRange timeRange;
 
 @property (readonly,atomic) VVAVFTranscoderStatus status;
 

@@ -1,6 +1,7 @@
 #import "FileListController.h"
 #import "FileNameController.h"
 #import "DestinationController.h"
+#import "TimelineWindowController.h"
 
 
 
@@ -32,6 +33,9 @@
 - (void) awakeFromNib	{
 	//	register to receive drops from the finder
 	[srcTableView registerForDraggedTypes:[NSArray arrayWithObjects:@"FileHolderIndexSet",NSPasteboardTypeFileURL,nil]];
+	//	double-click a row to open its filmstrip / in-out editor
+	[srcTableView setTarget:self];
+	[srcTableView setDoubleAction:@selector(srcTableDoubleClicked:)];
 }
 /* --------------------------------------------------------------------------------- */
 #pragma mark ---------------------
@@ -106,8 +110,18 @@
 		if ([filePtr srcFileExists])	{
 			[srcFileQueue watchPath:[filePtr parentDirectoryPath]];
 		}
-		//	use the file name controller to set the file's destination name
-		[filePtr setDstFileName:[fileNameController getDstNameForOrigName:[filePtr srcFileName]]];
+		//	use the file name controller to set the file's destination name; for cuts, suffix
+		//	the basename with the cutLabel before the extension so each cut writes a unique file
+		NSString		*dstBase = [fileNameController getDstNameForOrigName:[filePtr srcFileName]];
+		if ([[filePtr cutLabel] length] > 0)	{
+			NSString	*ext = [dstBase pathExtension];
+			NSString	*root = [dstBase stringByDeletingPathExtension];
+			if ([ext length] > 0)
+				dstBase = [NSString stringWithFormat:@"%@%@.%@", root, [filePtr cutLabel], ext];
+			else
+				dstBase = [NSString stringWithFormat:@"%@%@", root, [filePtr cutLabel]];
+		}
+		[filePtr setDstFileName:dstBase];
 		//	check for errors (file already exists)
 		if ([destinationController sameAsOriginal])	{
 			fullDstPath = [NSString stringWithFormat:@"%@%@",[filePtr parentDirectoryPath],[filePtr dstFileName]];
@@ -527,6 +541,67 @@
 	if (selectedRow >= [fileArray count])
 		return nil;
 	return [fileArray objectAtIndex:selectedRow];
+}
+
+/* --------------------------------------------------------------------------------- */
+#pragma mark --------------------- timeline / cuts
+/* --------------------------------------------------------------------------------- */
+- (void) srcTableDoubleClicked:(id)sender	{
+	NSInteger		clickedRow = [srcTableView clickedRow];
+	if (clickedRow < 0)
+		clickedRow = [srcTableView selectedRow];
+	if (clickedRow < 0 || clickedRow >= (NSInteger)[fileArray count])
+		return;
+	FileHolder		*f = [fileArray objectAtIndex:clickedRow];
+	if (f == nil)
+		return;
+	[TimelineWindowController showForFile:f fileListController:self];
+}
+
+- (void) addCutForSourcePath:(NSString *)path timeRange:(CMTimeRange)r	{
+	if (path == nil)
+		return;
+	//	find the highest existing cutLabel index for this source so we can pick the next one,
+	//	and remember where to insert (after the last existing entry sharing this source)
+	NSInteger		maxIndex = 1;	//	the unlabeled "original" counts as 1
+	NSInteger		insertAfter = -1;
+	for (NSInteger i = 0; i < (NSInteger)[fileArray count]; ++i)	{
+		FileHolder	*f = [fileArray objectAtIndex:i];
+		if (![[f fullSrcPath] isEqualToString:path])
+			continue;
+		insertAfter = i;
+		NSString	*lbl = [f cutLabel];
+		if ([lbl length] > 1 && [lbl characterAtIndex:0] == '_')	{
+			NSScanner	*s = [NSScanner scannerWithString:[lbl substringFromIndex:1]];
+			NSInteger	n = 0;
+			if ([s scanInteger:&n] && n > maxIndex)
+				maxIndex = n;
+		}
+	}
+	NSInteger		newIndex = maxIndex + 1;
+
+	FileHolder		*cut = [FileHolder createWithPath:path];
+	if (cut == nil)
+		return;
+	cut.inTime = r.start;
+	cut.outTime = CMTimeRangeGetEnd(r);
+	cut.cutLabel = [NSString stringWithFormat:@"_%03ld", (long)newIndex];
+
+	if (insertAfter >= 0 && (insertAfter+1) < (NSInteger)[fileArray count])
+		[fileArray insertObject:cut atIndex:(insertAfter+1)];
+	else
+		[fileArray addObject:cut];
+
+	[self updateDstFileNames];
+	[srcTableView reloadData];
+	[dstTableView reloadData];
+}
+
+- (void) fileHolderRangeChanged:(FileHolder *)f	{
+	//	the dst name doesn't depend on the range, but other consumers may want to refresh
+	[self updateDstFileNames];
+	[srcTableView reloadData];
+	[dstTableView reloadData];
 }
 
 

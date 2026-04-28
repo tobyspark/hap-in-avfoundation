@@ -36,6 +36,7 @@ NSString * const		kVVAVFTranscodeVideoResolutionKey = @"VVAVVideoResolutionKey";
 @property (strong,readwrite) NSURL * dst;
 @property (strong,readwrite) NSDictionary * audioSettings;
 @property (strong,readwrite) NSDictionary * videoSettings;
+@property (readwrite) CMTimeRange timeRange;
 
 @property (strong) VVAVFTranscoderCompleteHandler completionHandler;
 
@@ -74,7 +75,14 @@ NSString * const		kVVAVFTranscodeVideoResolutionKey = @"VVAVVideoResolutionKey";
 + (instancetype) createWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst audioSettings:(NSDictionary *)inAudioSettings videoSettings:(NSDictionary *)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch	{
 	return [[VVAVFTranscoder alloc] initWithSrc:inSrc dst:inDst audioSettings:inAudioSettings videoSettings:inVideoSettings completionHandler:ch];
 }
++ (instancetype) createWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst timeRange:(CMTimeRange)inTimeRange audioSettings:(NSDictionary *)inAudioSettings videoSettings:(NSDictionary *)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch	{
+	return [[VVAVFTranscoder alloc] initWithSrc:inSrc dst:inDst timeRange:inTimeRange audioSettings:inAudioSettings videoSettings:inVideoSettings completionHandler:ch];
+}
 - (instancetype) initWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst audioSettings:(NSDictionary *)inAudioSettings videoSettings:(NSDictionary *)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch	{
+	//	delegate to the time-range init using an invalid range as a sentinel for "full asset"
+	return [self initWithSrc:inSrc dst:inDst timeRange:kCMTimeRangeInvalid audioSettings:inAudioSettings videoSettings:inVideoSettings completionHandler:ch];
+}
+- (instancetype) initWithSrc:(NSURL *)inSrc dst:(NSURL *)inDst timeRange:(CMTimeRange)inTimeRange audioSettings:(NSDictionary *)inAudioSettings videoSettings:(NSDictionary *)inVideoSettings completionHandler:(VVAVFTranscoderCompleteHandler)ch	{
 	NSLog(@"%s",__func__);
 	NSLog(@"\t\t%@",inAudioSettings);
 	NSLog(@"\t\t%@",inVideoSettings);
@@ -115,16 +123,43 @@ NSString * const		kVVAVFTranscodeVideoResolutionKey = @"VVAVVideoResolutionKey";
 			self = nil;
 			return self;
 		}
-		//self.assetDurationInSeconds = CMTimeGetSeconds(_asset.duration);
-		self.assetDuration = _asset.duration;
-		
+		//	resolve the requested time range against the asset duration. only narrow the
+		//	reader when an explicit sub-range was supplied; otherwise leave the legacy default.
+		CMTime		assetDur = _asset.duration;
+		CMTimeRange	resolvedRange;
+		BOOL		callerProvidedRange = NO;
+		if (CMTIMERANGE_IS_VALID(inTimeRange) && !CMTIMERANGE_IS_EMPTY(inTimeRange) && CMTIME_IS_VALID(inTimeRange.duration))	{
+			CMTime		rStart = inTimeRange.start;
+			CMTime		rEnd = CMTimeRangeGetEnd(inTimeRange);
+			if (CMTIME_COMPARE_INLINE(rStart, <, kCMTimeZero))
+				rStart = kCMTimeZero;
+			if (CMTIME_IS_VALID(assetDur) && CMTIME_COMPARE_INLINE(rEnd, >, assetDur))
+				rEnd = assetDur;
+			if (CMTIME_COMPARE_INLINE(rEnd, <=, rStart))
+				resolvedRange = CMTimeRangeMake(kCMTimeZero, assetDur);
+			else	{
+				resolvedRange = CMTimeRangeMake(rStart, CMTimeSubtract(rEnd, rStart));
+				callerProvidedRange = YES;
+			}
+		}
+		else	{
+			resolvedRange = CMTimeRangeMake(kCMTimeZero, assetDur);
+		}
+		_timeRange = resolvedRange;
+		//	progress + writer-session-end work off the cut duration, not the source duration
+		self.assetDuration = resolvedRange.duration;
+
 		_reader = [AVAssetReader assetReaderWithAsset:_asset error:&nsErr];
 		if (_reader == nil || nsErr != nil)	{
 			NSLog(@"ERR: (%@) making reader in %s",nsErr,__func__);
 			self = nil;
 			return self;
 		}
-		
+		if (callerProvidedRange)	{
+			//	scope the reader to the requested range so each track output respects it
+			_reader.timeRange = resolvedRange;
+		}
+
 		_writer = [AVAssetWriter assetWriterWithURL:inDst fileType:AVFileTypeQuickTimeMovie error:&nsErr];
 		if (_writer == nil || nsErr != nil)	{
 			NSLog(@"ERR: (%@) making writer in %s",nsErr,__func__);
@@ -441,7 +476,8 @@ NSString * const		kVVAVFTranscodeVideoResolutionKey = @"VVAVVideoResolutionKey";
 	//	start reading and writing
 	[_reader startReading];
 	[_writer startWriting];
-	[_writer startSessionAtSourceTime:kCMTimeZero];
+	//	tell the writer the source-time of the first sample we will append- this re-bases output to start at zero
+	[_writer startSessionAtSourceTime:_timeRange.start];
 	
 	//	if we're NOT doing a multi-pass encode then we may be working with hap- so we need to do a simple, 'requestMediaDataWhenReadyOnQueue' approach
 	if (!_multiPassFlag)	{
@@ -527,7 +563,7 @@ NSString * const		kVVAVFTranscodeVideoResolutionKey = @"VVAVVideoResolutionKey";
 				NSLog(@"\t\tall tracks finished- should be finishing writer...");
 				//	tell the writer to end the session, then schedule a block to call our 'finishJob' method to finish cleaning up
 				if (self.writer.status == AVAssetWriterStatusWriting)
-					[self.writer endSessionAtSourceTime:self.assetDuration];
+					[self.writer endSessionAtSourceTime:CMTimeRangeGetEnd(self.timeRange)];
 				
 				if (self.writer.status == AVAssetWriterStatusCancelled)	{
 					[weakSelf finishJob];
@@ -621,8 +657,12 @@ NSString * const		kVVAVFTranscodeVideoResolutionKey = @"VVAVVideoResolutionKey";
 			//	since video's likely the bottleneck, we'll use that to calculate progress for this pass as a whole
 			CMTime		tmpTime = CMSampleBufferGetPresentationTimeStamp(newRef);
 			if (CMTIME_IS_VALID(tmpTime) && isVideoTrack)	{
-				double		tmpVal = CMTimeGetSeconds(tmpTime) / CMTimeGetSeconds(self.assetDuration);
+				//	tmpTime is in source-asset time; rebase to the cut for correct progress
+				CMTime		relativeT = CMTimeSubtract(tmpTime, _timeRange.start);
+				double		denom = CMTimeGetSeconds(self.assetDuration);
+				double		tmpVal = (denom > 0.0) ? (CMTimeGetSeconds(relativeT) / denom) : 0.0;
 				tmpVal = fminl(1.0, tmpVal);
+				if (tmpVal < 0.0) tmpVal = 0.0;
 				self.normalizedProgress = tmpVal;
 			}
 			

@@ -20,16 +20,21 @@
 		conversionDone = NO;
 		convertedFilePath = nil;
 		srcFileExists = NO;
-		
+		inTime = kCMTimeInvalid;
+		outTime = kCMTimeInvalid;
+		srcDuration = kCMTimeInvalid;
+		cutLabel = nil;
+
 		NSURL		*tmpURL = [NSURL fileURLWithPath:p];
 		AVAsset		*tmpAsset = [AVAsset assetWithURL:tmpURL];
 		if (![tmpAsset isPlayable] && ![tmpAsset containsHapVideoTrack])	{
 			self = nil;
 			return self;
 		}
+		srcDuration = tmpAsset.duration;
 		NSMutableString		*localParentDirPath = nil;
 		srcFileName = [p lastPathComponent];
-		
+
 		localParentDirPath = [p mutableCopy];
 		[localParentDirPath
 			replaceOccurrencesOfString:srcFileName
@@ -38,7 +43,7 @@
 			range:NSMakeRange(0,[localParentDirPath length])];
 		parentDirectoryPath = [localParentDirPath copy];
 		localParentDirPath = nil;
-		
+
 		dstFileName = nil;
 		errorString = nil;
 		conversionDone = NO;
@@ -66,6 +71,9 @@
 	if (convertedFilePath != nil)	{
 		convertedFilePath = nil;
 	}
+	if (cutLabel != nil)	{
+		cutLabel = nil;
+	}
 }
 
 - (NSString *) fullSrcPath	{
@@ -79,6 +87,40 @@
 @synthesize conversionDone;
 @synthesize convertedFilePath;
 @synthesize srcFileExists;
+@synthesize inTime;
+@synthesize outTime;
+@synthesize srcDuration;
+@synthesize cutLabel;
+
+- (BOOL) isCut	{
+	CMTimeRange		r = [self resolvedTimeRange];
+	if (!CMTIME_IS_VALID(srcDuration) || CMTIME_COMPARE_INLINE(srcDuration, ==, kCMTimeZero))
+		return NO;
+	//	is r strictly smaller than 0..srcDuration?
+	if (CMTIME_COMPARE_INLINE(r.start, >, kCMTimeZero))
+		return YES;
+	if (CMTIME_COMPARE_INLINE(CMTimeRangeGetEnd(r), <, srcDuration))
+		return YES;
+	return NO;
+}
+
+- (CMTimeRange) resolvedTimeRange	{
+	CMTime		startT = (CMTIME_IS_VALID(inTime)) ? inTime : kCMTimeZero;
+	CMTime		endT = (CMTIME_IS_VALID(outTime)) ? outTime : srcDuration;
+	if (!CMTIME_IS_VALID(endT))
+		endT = srcDuration;
+	if (CMTIME_COMPARE_INLINE(startT, <, kCMTimeZero))
+		startT = kCMTimeZero;
+	if (CMTIME_IS_VALID(srcDuration) && CMTIME_COMPARE_INLINE(endT, >, srcDuration))
+		endT = srcDuration;
+	if (CMTIME_COMPARE_INLINE(endT, <=, startT))	{
+		//	degenerate; fall back to full asset
+		startT = kCMTimeZero;
+		endT = (CMTIME_IS_VALID(srcDuration)) ? srcDuration : CMTimeMakeWithSeconds(1.0, 60000);
+	}
+	return CMTimeRangeMake(startT, CMTimeSubtract(endT, startT));
+}
+
 - (NSString *) description	{
 	return [NSString stringWithFormat:@"<FileHolder %@, %d>",[srcFileName lastPathComponent],conversionDone];
 }

@@ -173,6 +173,9 @@
 		1AB26EF61A3B59D5001360D7 /* AVPlayerItemAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB26EF41A3B59D5001360D7 /* AVPlayerItemAdditions.m */; };
 		1AB665EE1C96CDA500FC1B9D /* ScaledCoCgYPlusAToRGBA.frag in Resources */ = {isa = PBXBuildFile; fileRef = 1AB665ED1C96CDA500FC1B9D /* ScaledCoCgYPlusAToRGBA.frag */; };
 		1AB69BE32B7BDD790029FDEE /* libate.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB69BE22B7BDD790029FDEE /* libate.tbd */; };
+		1AC07000000000000000010A /* FilmstripTimelineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC07000000000000000000B /* FilmstripTimelineView.m */; };
+		1AC07000000000000000010C /* TimelineWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC07000000000000000000D /* TimelineWindowController.m */; };
+		1AC07000000000000000020B /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AC07000000000000000020A /* AVKit.framework */; };
 		1AC0CA191A437C2A00A9BC2C /* HapEncoderFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 1AC0CA171A437C2A00A9BC2C /* HapEncoderFrame.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		1AC0CA1A1A437C2A00A9BC2C /* HapEncoderFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC0CA181A437C2A00A9BC2C /* HapEncoderFrame.m */; };
 		1ACF5DEC1A3E4127005DDF19 /* PixelFormats.c in Sources */ = {isa = PBXBuildFile; fileRef = 1ACF5DEB1A3E4127005DDF19 /* PixelFormats.c */; };
@@ -433,6 +436,11 @@
 		1AB26EF41A3B59D5001360D7 /* AVPlayerItemAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerItemAdditions.m; sourceTree = "<group>"; };
 		1AB665ED1C96CDA500FC1B9D /* ScaledCoCgYPlusAToRGBA.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = ScaledCoCgYPlusAToRGBA.frag; sourceTree = "<group>"; };
 		1AB69BE22B7BDD790029FDEE /* libate.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libate.tbd; path = usr/lib/libate.tbd; sourceTree = SDKROOT; };
+		1AC07000000000000000000A /* FilmstripTimelineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilmstripTimelineView.h; sourceTree = "<group>"; };
+		1AC07000000000000000000B /* FilmstripTimelineView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilmstripTimelineView.m; sourceTree = "<group>"; };
+		1AC07000000000000000000C /* TimelineWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimelineWindowController.h; sourceTree = "<group>"; };
+		1AC07000000000000000000D /* TimelineWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimelineWindowController.m; sourceTree = "<group>"; };
+		1AC07000000000000000020A /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		1AC0CA171A437C2A00A9BC2C /* HapEncoderFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HapEncoderFrame.h; sourceTree = "<group>"; };
 		1AC0CA181A437C2A00A9BC2C /* HapEncoderFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HapEncoderFrame.m; sourceTree = "<group>"; };
 		1ACF5DEB1A3E4127005DDF19 /* PixelFormats.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = PixelFormats.c; path = source/PixelFormats.c; sourceTree = SOURCE_ROOT; };
@@ -473,6 +481,7 @@
 			files = (
 				1A642D1C1A652CE900E2152D /* HapInAVFoundation.framework in Frameworks */,
 				1A642D181A65245900E2152D /* AVFoundation.framework in Frameworks */,
+				1AC07000000000000000020B /* AVKit.framework in Frameworks */,
 				1A642D171A65245600E2152D /* CoreMedia.framework in Frameworks */,
 				1A42C2112BE9728A001D8155 /* Sparkle.framework in Frameworks */,
 			);
@@ -638,6 +647,10 @@
 				1A3BAC1E1A6524100065403A /* ActiveDeleteTableView.m */,
 				1A3BAC231A6524100065403A /* FileHolder.h */,
 				1A3BAC241A6524100065403A /* FileHolder.m */,
+				1AC07000000000000000000A /* FilmstripTimelineView.h */,
+				1AC07000000000000000000B /* FilmstripTimelineView.m */,
+				1AC07000000000000000000C /* TimelineWindowController.h */,
+				1AC07000000000000000000D /* TimelineWindowController.m */,
 				1A3BAC301A6524100065403A /* VVKQueue.h */,
 				1A3BAC311A6524100065403A /* VVKQueue.m */,
 				1AF053AF2B7E6BC100B1CD0D /* AVFExportAVSettingsWindow */,
@@ -667,6 +680,7 @@
 				1A0518671A3E1DAB00FC80D2 /* CoreVideo.framework */,
 				1A680E291A39F67E007678E5 /* CoreMedia.framework */,
 				1A680E231A39CFFF007678E5 /* AVFoundation.framework */,
+				1AC07000000000000000020A /* AVKit.framework */,
 				1AE092DB1AFE96F4004E866B /* VideoToolbox.framework */,
 				1A6060741A38D929008E693F /* Carbon.framework */,
 				1A60606F1A38D8DE008E693F /* Accelerate.framework */,
@@ -1182,6 +1196,8 @@
 				1AF053AD2B7E6B9500B1CD0D /* VVAVFTranscodeTrack.m in Sources */,
 				1A3BAC321A6524100065403A /* ActiveDeleteTableView.m in Sources */,
 				1A3BAC351A6524100065403A /* FileHolder.m in Sources */,
+				1AC07000000000000000010A /* FilmstripTimelineView.m in Sources */,
+				1AC07000000000000000010C /* TimelineWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1424,6 +1440,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = KH97KZU7A7;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = XVA8384FUL;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1473,6 +1490,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KH97KZU7A7;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = XVA8384FUL;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -1648,7 +1666,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = KH97KZU7A7;
+				DEVELOPMENT_TEAM = XVA8384FUL;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1687,7 +1705,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = KH97KZU7A7;
+				DEVELOPMENT_TEAM = XVA8384FUL;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

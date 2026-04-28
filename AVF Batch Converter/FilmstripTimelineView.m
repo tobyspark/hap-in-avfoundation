@@ -17,6 +17,9 @@ static const CGFloat kStripInset = 4.0;	//	left/right padding inside the view
 @property (strong,nullable) AVAssetImageGenerator *imageGenerator;
 @property (assign) NSInteger pendingThumbnailGeneration;
 @property (assign) FilmstripDragMode dragMode;
+//	YES when the current drag was started by a modifier on the timeline body- in that case
+//	we also drag the playhead so the preview tracks the in/out being set
+@property (assign) BOOL modifierInitiatedDrag;
 @end
 
 @implementation FilmstripTimelineView
@@ -233,8 +236,13 @@ static const CGFloat kStripInset = 4.0;	//	left/right padding inside the view
 
 - (void) mouseDown:(NSEvent *)event {
 	NSPoint p = [self convertPoint:event.locationInWindow fromView:nil];
-	self.dragMode = [self dragModeForPoint:p modifiers:event.modifierFlags];
+	NSEventModifierFlags m = event.modifierFlags;
+	self.dragMode = [self dragModeForPoint:p modifiers:m];
 	if (self.dragMode == FilmstripDragNone) return;
+	//	a modifier-redirected drag (alt or cmd on the body) also pulls the playhead along.
+	//	direct hits on the visible in/out handles do not move the playhead.
+	BOOL hasMod = (m & (NSEventModifierFlagOption | NSEventModifierFlagCommand)) != 0;
+	self.modifierInitiatedDrag = hasMod && (self.dragMode == FilmstripDragInHandle || self.dragMode == FilmstripDragOutHandle);
 	[self handleDragToPoint:p];
 }
 
@@ -246,6 +254,7 @@ static const CGFloat kStripInset = 4.0;	//	left/right padding inside the view
 
 - (void) mouseUp:(NSEvent *)event {
 	self.dragMode = FilmstripDragNone;
+	self.modifierInitiatedDrag = NO;
 }
 
 - (void) handleDragToPoint:(NSPoint)p {
@@ -260,15 +269,21 @@ static const CGFloat kStripInset = 4.0;	//	left/right padding inside the view
 		}
 		case FilmstripDragInHandle: {
 			//	clamp so in <= out - 1 frame's worth of slack
-			CMTime out = [self effectiveOutTime];
-			if (CMTIME_COMPARE_INLINE(t, >=, out)) {
-				t = CMTimeSubtract(out, CMTimeMakeWithSeconds(0.05, 600));
+			CMTime outT = [self effectiveOutTime];
+			if (CMTIME_COMPARE_INLINE(t, >=, outT)) {
+				t = CMTimeSubtract(outT, CMTimeMakeWithSeconds(0.05, 600));
 			}
 			if (CMTIME_COMPARE_INLINE(t, <, kCMTimeZero)) t = kCMTimeZero;
 			self.inTime = t;
 			[self setNeedsDisplay:YES];
 			if ([self.delegate respondsToSelector:@selector(filmstripTimelineView:didSetInTime:)])
 				[self.delegate filmstripTimelineView:self didSetInTime:t];
+			//	modifier-redirected drags also pull the playhead so the preview tracks
+			if (self.modifierInitiatedDrag) {
+				self.currentTime = t;
+				if ([self.delegate respondsToSelector:@selector(filmstripTimelineView:didSeekToTime:)])
+					[self.delegate filmstripTimelineView:self didSeekToTime:t];
+			}
 			break;
 		}
 		case FilmstripDragOutHandle: {
@@ -282,6 +297,11 @@ static const CGFloat kStripInset = 4.0;	//	left/right padding inside the view
 			[self setNeedsDisplay:YES];
 			if ([self.delegate respondsToSelector:@selector(filmstripTimelineView:didSetOutTime:)])
 				[self.delegate filmstripTimelineView:self didSetOutTime:t];
+			if (self.modifierInitiatedDrag) {
+				self.currentTime = t;
+				if ([self.delegate respondsToSelector:@selector(filmstripTimelineView:didSeekToTime:)])
+					[self.delegate filmstripTimelineView:self didSeekToTime:t];
+			}
 			break;
 		}
 		default: break;

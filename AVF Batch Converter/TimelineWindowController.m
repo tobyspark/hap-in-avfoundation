@@ -75,11 +75,24 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 			if ([fieldDelegate isKindOfClass:[NSTextField class]]) return event;
 		}
 		else if (fr == s.cutLabelField) return event;
-		//	plain 'i'/'o' only- don't hijack cmd-i, ctrl-i, etc.
+		//	plain hotkeys only- don't hijack cmd-i, shift-arrow, etc. NSEventModifierFlagFunction
+		//	is set for arrow keys, so it's part of the cleared bits for arrows to fall through.
 		NSEventModifierFlags mods = event.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask;
 		mods &= ~(NSEventModifierFlagCapsLock | NSEventModifierFlagNumericPad | NSEventModifierFlagFunction);
 		if (mods != 0) return event;
-		NSString *chars = [event.charactersIgnoringModifiers lowercaseString];
+		NSString *raw = event.charactersIgnoringModifiers;
+		if ([raw length] == 1) {
+			unichar ch = [raw characterAtIndex:0];
+			if (ch == NSLeftArrowFunctionKey) {
+				[s nudgePlayheadByFrames:-1];
+				return nil;
+			}
+			if (ch == NSRightArrowFunctionKey) {
+				[s nudgePlayheadByFrames:1];
+				return nil;
+			}
+		}
+		NSString *chars = [raw lowercaseString];
 		if ([chars isEqualToString:@"i"]) {
 			[s setInPointAtPlayhead];
 			return nil;
@@ -90,6 +103,21 @@ static NSMutableSet<TimelineWindowController *> *_sLiveWindows = nil;
 		}
 		return event;
 	}];
+}
+
+- (void) nudgePlayheadByFrames:(NSInteger)n {
+	if (n == 0) return;
+	AVPlayerItem *item = self.player.currentItem;
+	if (item == nil) return;
+	//	frame stepping only makes sense when paused, and AVPlayerItem snaps to frame
+	//	boundaries using the asset's video track timing- which is exactly what we want
+	[self.player pause];
+	if ((n > 0 && item.canStepForward) || (n < 0 && item.canStepBackward)) {
+		[item stepByCount:n];
+	}
+	//	sync the timeline + labels immediately; the periodic observer will follow up
+	self.timeline.currentTime = self.player.currentTime;
+	[self refreshLabels];
 }
 
 - (void) setInPointAtPlayhead {

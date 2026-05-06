@@ -1,5 +1,6 @@
 #import "FileSettingsController.h"
 #import "ExportController.h"
+#import "VVAVFTranscoder.h"
 
 
 
@@ -19,23 +20,21 @@
 	//	load the last audio/video settings
 	NSUserDefaults		*def = [NSUserDefaults standardUserDefaults];
 	//NSDictionary		*tmpDict = nil;
-	
+
 	NSDictionary		*tmpAudioDict = [def objectForKey:@"lastAudioSettings"];
 	if (tmpAudioDict==nil)
 		tmpAudioDict = [NSDictionary dictionary];
-	exportController.audioSettingsDict = tmpAudioDict;
-	
+
 	NSDictionary		*tmpVideoDict = [def objectForKey:@"lastVideoSettings"];
 	if (tmpVideoDict==nil)
 		tmpVideoDict = [NSDictionary dictionary];
 	exportController.videoSettingsDict = tmpVideoDict;
-	
-	AVFExportAVSettingsWindow		*tmpWin = [AVFExportAVSettingsWindow createWithAudioSettings:tmpAudioDict videoSettings:tmpVideoDict];
-	NSString		*audioDesc = tmpWin.audioVC.lengthyDescription;
-	NSString		*videoDesc = tmpWin.videoVC.lengthyDescription;
-	[audioDescriptionField setStringValue:audioDesc];
-	[videoDescriptionField setStringValue:videoDesc];
-	
+
+	//	derive the toggle's initial state from the persisted dict's strip flag,
+	//	then push the toggle-respecting effective dict back to the export controller
+	[self syncIncludeAudioToggleToDict:tmpAudioDict];
+	[self applyAudioDict:tmpAudioDict videoDict:tmpVideoDict];
+
 	if (tmpAudioDict == nil && tmpVideoDict == nil)	{
 		[loadSavedExportSettingsPUB selectItemWithTitle:@"h264"];
 		[self loadSavedExportSettingsPUBUsed:loadSavedExportSettingsPUB];
@@ -43,6 +42,71 @@
 	else	{
 		[loadSavedExportSettingsPUB selectItem:nil];
 	}
+}
+
+//	YES if the toggle is on (audio should be included). Defaults to YES if the toggle
+//	hasn't been wired up yet (we haven't reached awakeFromNib).
+- (BOOL) includeAudio	{
+	if (includeAudioToggle == nil)
+		return YES;
+	return [includeAudioToggle state] == NSControlStateValueOn;
+}
+
+//	read the strip key out of `d` and reflect it on the toggle, so loading a preset
+//	that already encodes "no audio" pre-checks the checkbox correctly
+- (void) syncIncludeAudioToggleToDict:(NSDictionary *)d	{
+	if (includeAudioToggle == nil)
+		return;
+	NSNumber	*stripNum = [d objectForKey:kVVAVFTranscodeStripMediaKey];
+	BOOL		strip = (stripNum != nil && [stripNum boolValue]);
+	[includeAudioToggle setState:(strip ? NSControlStateValueOff : NSControlStateValueOn)];
+}
+
+//	return a copy of `d` with the strip key set or removed to match the toggle's
+//	current state. nil-safe (treats nil as empty dict).
+- (NSDictionary *) audioDictApplyingToggle:(NSDictionary *)d	{
+	NSMutableDictionary		*m = (d != nil) ? [d mutableCopy] : [NSMutableDictionary dictionary];
+	if ([self includeAudio])
+		[m removeObjectForKey:kVVAVFTranscodeStripMediaKey];
+	else
+		[m setObject:@YES forKey:kVVAVFTranscodeStripMediaKey];
+	return m;
+}
+
+//	push the effective audio + raw video dicts to the ExportController and refresh
+//	the descriptions on the main window. centralizes the "audio side effect" so
+//	preset / sheet / toggle paths all behave consistently.
+- (void) applyAudioDict:(NSDictionary *)audio videoDict:(NSDictionary *)video	{
+	NSDictionary	*effectiveAudio = [self audioDictApplyingToggle:audio];
+	exportController.audioSettingsDict = effectiveAudio;
+	if (video != nil)
+		exportController.videoSettingsDict = video;
+
+	NSDictionary	*usedVideo = (video != nil) ? video : exportController.videoSettingsDict;
+	AVFExportAVSettingsWindow	*tmpWin = [AVFExportAVSettingsWindow createWithAudioSettings:effectiveAudio videoSettings:usedVideo];
+	NSString		*audioDesc = tmpWin.audioVC.lengthyDescription;
+	if (audioDesc == nil) audioDesc = @"";
+	if (![self includeAudio])
+		audioDesc = @"Audio: stripped from output";
+	NSString		*videoDesc = tmpWin.videoVC.lengthyDescription;
+	if (videoDesc == nil) videoDesc = @"";
+	[audioDescriptionField setStringValue:audioDesc];
+	[videoDescriptionField setStringValue:videoDesc];
+
+	NSUserDefaults	*def = [NSUserDefaults standardUserDefaults];
+	[def setObject:effectiveAudio forKey:@"lastAudioSettings"];
+	if (video != nil)
+		[def setObject:video forKey:@"lastVideoSettings"];
+}
+
+- (IBAction) includeAudioToggleUsed:(id)sender	{
+	//	re-derive the effective audio dict from whatever's currently in defaults
+	//	(strip key removed so the toggle is the source of truth), then push.
+	NSUserDefaults	*def = [NSUserDefaults standardUserDefaults];
+	NSDictionary	*current = [def objectForKey:@"lastAudioSettings"];
+	NSMutableDictionary	*raw = (current != nil) ? [current mutableCopy] : [NSMutableDictionary dictionary];
+	[raw removeObjectForKey:kVVAVFTranscodeStripMediaKey];
+	[self applyAudioDict:raw videoDict:nil];
 }
 
 - (void) loadSavedSettingsFromDefaults	{
@@ -181,23 +245,15 @@
 			completionHandler:^(NSModalResponse returnCode)	{
 				NSDictionary		*audioDict = [win.audioVC createAVFSettingsDict];
 				NSDictionary		*videoDict = [win.videoVC createAVFSettingsDict];
-				
+
 				[self->loadSavedExportSettingsPUB selectItem:nil];
 				if (returnCode != NSModalResponseOK)	{
 					return;
 				}
-				
-				NSUserDefaults		*def = [NSUserDefaults standardUserDefaults];
-				[def setObject:audioDict forKey:@"lastAudioSettings"];
-				[def setObject:videoDict forKey:@"lastVideoSettings"];
-				
-				NSString			*videoDesc = win.videoVC.lengthyDescription;
-				NSString			*audioDesc = win.audioVC.lengthyDescription;
-				self->videoDescriptionField.stringValue = (videoDesc==nil) ? @"" : videoDesc;
-				self->audioDescriptionField.stringValue = (audioDesc==nil) ? @"" : audioDesc;
-				
-				self->exportController.audioSettingsDict = audioDict;
-				self->exportController.videoSettingsDict = videoDict;
+
+				//	the audio sheet doesn't manage the strip key; let the toggle apply it.
+				//	this also handles persistence and label refresh.
+				[self applyAudioDict:audioDict videoDict:videoDict];
 			}];
 	}
 	
@@ -211,31 +267,11 @@
 	if (settingsDict==nil)
 		return;
 	NSDictionary		*audio = [settingsDict objectForKey:@"audio"];
-	//[transcoderSettings populateUIWithAudioSettingsDict:audio];
 	NSDictionary		*video = [settingsDict objectForKey:@"video"];
-	//[transcoderSettings populateUIWithVideoSettingsDict:video];
-	//NSLog(@"\t\taudio is %@",audio);
-	//NSLog(@"\t\tvideo is %@",video);
-	
-	NSUserDefaults	*def = [NSUserDefaults standardUserDefaults];
-	if (audio != nil)
-		[def setObject:audio forKey:@"lastAudioSettings"];
-	if (video != nil)
-		[def setObject:video forKey:@"lastVideoSettings"];
-	
-	exportController.audioSettingsDict = audio;
-	exportController.videoSettingsDict = video;
-	
-	AVFExportAVSettingsWindow		*tmpWin = [AVFExportAVSettingsWindow createWithAudioSettings:audio videoSettings:video];
-	NSString		*tmpAudioString = tmpWin.audioVC.lengthyDescription;
-	if (tmpAudioString == nil)
-		tmpAudioString = @"";
-	NSString		*tmpVideoString = tmpWin.videoVC.lengthyDescription;
-	if (tmpVideoString == nil)
-		tmpVideoString = @"";
-	[audioDescriptionField setStringValue:tmpAudioString];
-	[videoDescriptionField setStringValue:tmpVideoString];
-	tmpWin = nil;
+
+	//	if the preset already encodes a strip preference, surface it on the toggle
+	[self syncIncludeAudioToggleToDict:audio];
+	[self applyAudioDict:audio videoDict:video];
 }
 - (IBAction) saveCurrentSettingsClicked:(id)sender	{
 	//NSLog(@"%s",__func__);

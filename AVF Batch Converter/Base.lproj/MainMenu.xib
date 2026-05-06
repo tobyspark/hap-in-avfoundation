@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="24506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="22689"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24506"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -275,8 +275,8 @@
                                                 <action selector="toggleSmartInsertDelete:" target="-1" id="3IJ-Se-DZD"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Smart Quotes" id="hQb-2v-fYv">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Smart Quotes" keyEquivalent="" id="hQb-2v-fYv">
+                                            <modifierMask key="keyEquivalentModifierMask" shift="YES" control="YES" option="YES" command="YES"/>
                                             <connections>
                                                 <action selector="toggleAutomaticQuoteSubstitution:" target="-1" id="ptq-xd-QOA"/>
                                             </connections>
@@ -299,8 +299,8 @@
                                                 <action selector="toggleAutomaticDataDetection:" target="-1" id="R1I-Nq-Kbl"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Text Replacement" id="HFQ-gK-NFA">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Text Replacement" keyEquivalent="" id="HFQ-gK-NFA">
+                                            <modifierMask key="keyEquivalentModifierMask" shift="YES" control="YES" option="YES" command="YES"/>
                                             <connections>
                                                 <action selector="toggleAutomaticTextReplacement:" target="-1" id="DvP-Fe-Py6"/>
                                             </connections>
@@ -689,7 +689,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" texturedBackground="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
             <rect key="contentRect" x="118" y="653" width="962" height="261"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2135"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1728" height="1079"/>
             <value key="minSize" type="size" width="962" height="261"/>
             <value key="maxSize" type="size" width="962" height="1024"/>
             <view key="contentView" id="QPW-jZ-YaK">
@@ -750,7 +750,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
-                    <textField verticalHuggingPriority="750" id="N9d-1P-rGN">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="N9d-1P-rGN">
                         <rect key="frame" x="17" y="224" width="196" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Files to convert:" id="RCG-GP-bzc">
@@ -777,7 +777,7 @@
                             <action selector="loadSavedExportSettingsPUBUsed:" target="KDf-Qx-PlL" id="cG4-np-2Rr"/>
                         </connections>
                     </popUpButton>
-                    <textField verticalHuggingPriority="750" id="AJj-0K-yfA">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="AJj-0K-yfA">
                         <rect key="frame" x="225" y="224" width="222" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Output Format:" id="P2v-7Y-xVA">
@@ -786,7 +786,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="4Sb-Re-JfX">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="4Sb-Re-JfX">
                         <rect key="frame" x="471" y="199" width="50" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Remove:" id="pSd-AG-RFt">
@@ -795,7 +795,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="4MU-R8-Iio">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="4MU-R8-Iio">
                         <rect key="frame" x="471" y="172" width="50" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Append:" id="WTs-ey-62M">
@@ -804,7 +804,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="CR0-gZ-3No">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="CR0-gZ-3No">
                         <rect key="frame" x="471" y="145" width="50" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Prefix:" id="ibN-rx-UdF">
@@ -813,7 +813,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="R5F-E5-iON">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="R5F-E5-iON">
                         <rect key="frame" x="526" y="197" width="126" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title=".mov" drawsBackground="YES" id="g5K-MV-mX0">
@@ -826,7 +826,7 @@
                             <outlet property="nextKeyView" destination="Wfz-O2-ah4" id="xlu-d0-1YX"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="Wfz-O2-ah4">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="Wfz-O2-ah4">
                         <rect key="frame" x="526" y="170" width="126" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="_2.mov" drawsBackground="YES" id="DnV-5t-yuS">
@@ -839,7 +839,7 @@
                             <outlet property="nextKeyView" destination="NO9-eT-pnC" id="NXn-eQ-dYH"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="NO9-eT-pnC">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="NO9-eT-pnC">
                         <rect key="frame" x="526" y="143" width="126" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="lLB-Qf-pr7">
@@ -852,7 +852,7 @@
                             <outlet property="nextKeyView" destination="R5F-E5-iON" id="sNm-Ar-2SI"/>
                         </connections>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="U81-ML-KcM">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="U81-ML-KcM">
                         <rect key="frame" x="459" y="224" width="196" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="File Renaming:" id="Fea-uC-RV2">
@@ -872,7 +872,7 @@
                             <action selector="sameAsOriginalToggleUsed:" target="8wp-n1-SuH" id="kBe-Xi-Ypm"/>
                         </connections>
                     </button>
-                    <textField hidden="YES" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="igC-Zd-SaH">
+                    <textField hidden="YES" focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" id="igC-Zd-SaH">
                         <rect key="frame" x="471" y="20" width="184" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" alignment="center" title="DestinationPath" id="OUg-7j-zT3">
@@ -892,7 +892,7 @@
                             <action selector="chooseButtonUsed:" target="8wp-n1-SuH" id="emJ-8E-eZn"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" id="0S7-gG-2l8">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="0S7-gG-2l8">
                         <rect key="frame" x="459" y="85" width="140" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Destination Folder:" id="XxD-u2-GOo">
@@ -966,7 +966,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
-                    <textField verticalHuggingPriority="750" id="bkG-ok-ld5">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="bkG-ok-ld5">
                         <rect key="frame" x="666" y="224" width="154" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Output Files:" id="pI6-a9-MFG">
@@ -987,7 +987,7 @@
                         <rect key="frame" x="658" y="20" width="5" height="221"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </box>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="T8c-I4-iwU">
+                    <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="T8c-I4-iwU">
                         <rect key="frame" x="236" y="162" width="212" height="56"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" id="2M9-7E-xsL">
@@ -997,7 +997,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="gw7-UI-vM8">
+                    <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" id="gw7-UI-vM8">
                         <rect key="frame" x="236" y="96" width="211" height="56"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" id="N2U-Q6-U8Z">
@@ -1007,7 +1007,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="inV-B6-9MS">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="inV-B6-9MS">
                         <rect key="frame" x="225" y="48" width="114" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Load saved settings:" id="O1h-uj-yYO">
@@ -1049,6 +1049,17 @@
                             <action selector="importButtonUsed:" target="VyU-DV-4sh" id="uq9-OL-a3y"/>
                         </connections>
                     </button>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dqU-R0-evD">
+                        <rect key="frame" x="236" y="149" width="97" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Include audio" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="2IG-3d-OD1">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="includeAudioToggleUsed:" target="KDf-Qx-PlL" id="ZYJ-lz-I8o"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <connections>
@@ -1060,7 +1071,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" utility="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="227" width="363" height="160"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2135"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1728" height="1079"/>
             <view key="contentView" id="y60-ZQ-aRP">
                 <rect key="frame" x="0.0" y="0.0" width="363" height="160"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -1076,7 +1087,7 @@
                             <action selector="aboutWindowDismiss:" target="Voe-Tx-rLC" id="Vdx-P1-lXa"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" id="dp5-2Q-1De">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="dp5-2Q-1De">
                         <rect key="frame" x="17" y="123" width="329" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="AVFoundation Batch Exporter" id="2Ye-Uc-WDW">
@@ -1085,7 +1096,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="ons-7a-hFp">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="ons-7a-hFp">
                         <rect key="frame" x="17" y="105" width="329" height="11"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="written by Ray Cutler" id="pfJ-B4-ldk">
@@ -1094,7 +1105,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="pKn-L7-Nmj">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="pKn-L7-Nmj">
                         <rect key="frame" x="17" y="93" width="329" height="11"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="http://www.vidvox.net" id="HUx-rv-ppN">
@@ -1124,14 +1135,14 @@
         </customObject>
         <window title="Save As" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" visibleAtLaunch="NO" animationBehavior="default" id="q7M-2m-cW7" userLabel="save settings">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
             <rect key="contentRect" x="196" y="398" width="287" height="235"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2135"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1728" height="1079"/>
             <view key="contentView" id="qGB-KO-0JM">
                 <rect key="frame" x="0.0" y="0.0" width="287" height="235"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField verticalHuggingPriority="750" id="ghI-dt-RDc">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="ghI-dt-RDc">
                         <rect key="frame" x="18" y="201" width="98" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Save Settings As:" id="wF3-pS-hZc">
@@ -1140,7 +1151,7 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <textField verticalHuggingPriority="750" id="kwQ-lm-9cE">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="kwQ-lm-9cE">
                         <rect key="frame" x="20" y="174" width="247" height="19"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="P3B-gN-xqq">
@@ -1178,7 +1189,7 @@ DQ
                             </menu>
                         </popUpButtonCell>
                     </popUpButton>
-                    <textField verticalHuggingPriority="750" id="Wjm-GR-lPV">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="Wjm-GR-lPV">
                         <rect key="frame" x="18" y="99" width="140" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Select a setting to delete:" id="zLE-M7-vNr">
@@ -1217,7 +1228,7 @@ DQ
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="341" width="643" height="168"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="3840" height="2135"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1728" height="1079"/>
             <view key="contentView" id="hTp-Il-TIx">
                 <rect key="frame" x="0.0" y="0.0" width="643" height="168"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -1226,7 +1237,7 @@ DQ
                         <rect key="frame" x="18" y="106" width="607" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
-                    <textField verticalHuggingPriority="750" id="8Hc-pE-DcO">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="8Hc-pE-DcO">
                         <rect key="frame" x="17" y="134" width="373" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="File X of X" id="zyO-Qw-Nj1">
@@ -1239,7 +1250,7 @@ DQ
                         <rect key="frame" x="18" y="60" width="607" height="20"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     </progressIndicator>
-                    <textField verticalHuggingPriority="750" id="VwJ-21-f6f">
+                    <textField focusRingType="none" verticalHuggingPriority="750" id="VwJ-21-f6f">
                         <rect key="frame" x="17" y="88" width="373" height="14"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="MyFileName.mov" id="nh4-aR-HUX">
@@ -1298,6 +1309,7 @@ DQ
                 <outlet property="audioDescriptionField" destination="gw7-UI-vM8" id="O5e-lQ-pYo"/>
                 <outlet property="deleteSavedExportSettingsPUB" destination="FNn-0a-WRp" id="ele-2C-o1t"/>
                 <outlet property="exportController" destination="mor-BB-edV" id="Do8-7c-yP8"/>
+                <outlet property="includeAudioToggle" destination="dqU-R0-evD" id="QDu-MV-AvZ"/>
                 <outlet property="loadSavedExportSettingsPUB" destination="gwD-99-xu9" id="rC6-0G-d5E"/>
                 <outlet property="mainWindow" destination="htD-dR-F4E" id="epk-ug-vEX"/>
                 <outlet property="saveSettingsField" destination="kwQ-lm-9cE" id="pQs-gk-xlV"/>

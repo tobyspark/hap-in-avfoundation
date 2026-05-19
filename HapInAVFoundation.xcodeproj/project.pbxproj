@@ -187,8 +187,12 @@
 		1AF053BF2B7E6BC100B1CD0D /* AVFExportSettingsVideoVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF053B42B7E6BC100B1CD0D /* AVFExportSettingsVideoVC.xib */; };
 		1AF053C02B7E6BC100B1CD0D /* AVFExportAVSettingsWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF053B62B7E6BC100B1CD0D /* AVFExportAVSettingsWindow.xib */; };
 		1AF053C12B7E6BC100B1CD0D /* AVFExportSettingsAudioVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF053B72B7E6BC100B1CD0D /* AVFExportSettingsAudioVC.xib */; };
+		4A1F754A9BC511521D54295E /* HapManagedTexture.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDCCF9BABE3E56754EF7A778 /* HapManagedTexture.swift */; };
 		840B32C72417D9DD007CA678 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 840B32C62417D9DD007CA678 /* Metal.framework */; };
 		840B32CC2417E796007CA678 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 840B32CB2417E796007CA678 /* MetalKit.framework */; };
+		8FA7DFB05D871BFA932233D2 /* AVPlayerItemHapMetalOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1681430E602358624356EA /* AVPlayerItemHapMetalOutput.swift */; };
+		968311B40E3C499268A1E48C /* AVAssetHapAsync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1DAF5A25A5040B99AE2FF9 /* AVAssetHapAsync.swift */; };
+		AAF6C488D6068B7BB9467EEE /* HapCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = F75C88AE550C07C0AD256879 /* HapCodec.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -451,9 +455,13 @@
 		1AF053B82B7E6BC100B1CD0D /* AVFExportSettingsAudioVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVFExportSettingsAudioVC.h; sourceTree = "<group>"; };
 		1AF053B92B7E6BC100B1CD0D /* AVFExportSettingsVideoVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVFExportSettingsVideoVC.h; sourceTree = "<group>"; };
 		1AF053BA2B7E6BC100B1CD0D /* AVFExportAVSettingsWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVFExportAVSettingsWindow.h; sourceTree = "<group>"; };
+		4A1DAF5A25A5040B99AE2FF9 /* AVAssetHapAsync.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AVAssetHapAsync.swift; sourceTree = "<group>"; };
 		840B32C62417D9DD007CA678 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		840B32CB2417E796007CA678 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		84F6F9362418F9D600E1C63D /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		DDCCF9BABE3E56754EF7A778 /* HapManagedTexture.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HapManagedTexture.swift; sourceTree = "<group>"; };
+		F75C88AE550C07C0AD256879 /* HapCodec.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HapCodec.swift; sourceTree = "<group>"; };
+		FB1681430E602358624356EA /* AVPlayerItemHapMetalOutput.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AVPlayerItemHapMetalOutput.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -688,6 +696,10 @@
 				1AB26EF41A3B59D5001360D7 /* AVPlayerItemAdditions.m */,
 				1A5A4DE21A54A047005C961F /* AVAssetAdditions.h */,
 				1A5A4DE31A54A047005C961F /* AVAssetAdditions.m */,
+				F75C88AE550C07C0AD256879 /* HapCodec.swift */,
+				DDCCF9BABE3E56754EF7A778 /* HapManagedTexture.swift */,
+				4A1DAF5A25A5040B99AE2FF9 /* AVAssetHapAsync.swift */,
+				FB1681430E602358624356EA /* AVPlayerItemHapMetalOutput.swift */,
 			);
 			name = "Decode (playback)";
 			sourceTree = "<group>";
@@ -1248,6 +1260,10 @@
 				1A0536231A38CA5D005B47BD /* YCoCg.c in Sources */,
 				1A24F8E42B7BAA4F008F1B44 /* ATEBC7Encoder.c in Sources */,
 				1A401D6D1A41FF79003B6E0A /* AVAssetWriterHapInput.m in Sources */,
+				AAF6C488D6068B7BB9467EEE /* HapCodec.swift in Sources */,
+				4A1F754A9BC511521D54295E /* HapManagedTexture.swift in Sources */,
+				968311B40E3C499268A1E48C /* AVAssetHapAsync.swift in Sources */,
+				8FA7DFB05D871BFA932233D2 /* AVPlayerItemHapMetalOutput.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1643,6 +1659,8 @@
 		1A97F5C21A38ABBF00E0DC74 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = ssse3;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1671,16 +1689,21 @@
 					"@loader_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Vidvox.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
 		1A97F5C31A38ABBF00E0DC74 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_X86_VECTOR_INSTRUCTIONS = ssse3;
 				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO;
@@ -1710,10 +1733,13 @@
 					"@loader_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.Vidvox.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
